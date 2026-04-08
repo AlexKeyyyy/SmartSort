@@ -1,0 +1,157 @@
+{
+  "sources": [
+    {
+      "kind": "huggingface",
+      "dataset": "ag_news",
+      "split": "train",
+      "label": "Docs",
+      "filename_columns": [],
+      "content_columns": ["text", "description", "content"],
+      "filename_from_content_prefix": true,
+      "sample_limit": 450,
+      "min_content_length": 40
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "IlyaGusev/gazeta",
+      "split": "train",
+      "label": "Docs",
+      "filename_columns": ["title"],
+      "content_columns": ["title", "summary", "text"],
+      "sample_limit": 250,
+      "min_content_length": 40
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "IlyaGusev/habr",
+      "split": "train",
+      "label": "Docs",
+      "filename_columns": ["title", "author"],
+      "content_columns": ["title", "text", "content", "tags"],
+      "sample_limit": 450,
+      "min_content_length": 60
+    },
+    {
+      "kind": "local_file",
+      "path": "data/raw/russian_docs.jsonl",
+      "format": "jsonl",
+      "label": "Docs",
+      "filename_columns": ["filename"],
+      "content_columns": ["content"],
+      "sample_limit": 180,
+      "min_content_length": 40
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "ashraq/financial-news-articles",
+      "split": "train",
+      "label": "Finance",
+      "filename_columns": ["title", "url"],
+      "content_columns": ["title", "text", "content"],
+      "filename_from_content_prefix": true,
+      "sample_limit": 450,
+      "min_content_length": 40
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "Kasymkhan/RussianFinancialNews",
+      "split": "train",
+      "label": "Finance",
+      "filename_columns": ["title", "source"],
+      "content_columns": ["title", "body", "tags"],
+      "sample_limit": 260,
+      "min_content_length": 40
+    },
+    {
+      "kind": "local_file",
+      "path": "data/raw/russian_finance.jsonl",
+      "format": "jsonl",
+      "label": "Finance",
+      "filename_columns": ["filename"],
+      "content_columns": ["content"],
+      "sample_limit": 150,
+      "min_content_length": 40
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "mlsa-iai-msu-lab/ru_sci_bench_mteb",
+      "config": "cited_count_ru",
+      "split": "train",
+      "label": "Study",
+      "filename_columns": ["paper_id"],
+      "content_columns": ["text", "value", "label"],
+      "filename_from_content_prefix": true,
+      "sample_limit": 360,
+      "min_content_length": 70
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "nyuuzyou/classnotes",
+      "split": "train",
+      "label": "Study",
+      "filename_columns": ["title"],
+      "content_columns": ["title", "description", "author", "text", "content"],
+      "sample_limit": 220,
+      "min_content_length": 70
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "deepvk/cultura_ru_edu",
+      "split": "train",
+      "label": "Study",
+      "filename_columns": ["title", "subject"],
+      "content_columns": ["title", "text", "content", "abstract"],
+      "sample_limit": 240,
+      "min_content_length": 70
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "IlyaGusev/habr",
+      "split": "train",
+      "label": "Study",
+      "filename_columns": ["title", "author"],
+      "content_columns": ["title", "text", "content", "tags"],
+      "sample_limit": 160,
+      "min_content_length": 70
+    },
+    {
+      "kind": "local_file",
+      "path": "data/raw/russian_study.jsonl",
+      "format": "jsonl",
+      "label": "Study",
+      "filename_columns": ["filename"],
+      "content_columns": ["content"],
+      "sample_limit": 170,
+      "min_content_length": 70
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "logfit-project/HDFS_v1",
+      "split": "train",
+      "label": "Logs",
+      "filename_columns": ["component", "block_id"],
+      "content_columns": ["content", "text", "message", "log"],
+      "filename_from_content_prefix": true,
+      "sample_limit": 300,
+      "min_content_length": 30,
+      "retries": 1
+    }
+  ],
+  "label_target_counts": {
+    "Code": 1000,
+    "Docs": 1200,
+    "Finance": 900,
+    "Study": 1100,
+    "Logs": 1000,
+    "Media": 600,
+    "Archives": 600,
+    "Other": 600
+  },
+  "synthetic_counts": {
+    "Code": 1000,
+    "Logs": 1000,
+    "Media": 600,
+    "Archives": 600,
+    "Other": 600
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "sources": [
+    {
+      "kind": "huggingface",
+      "dataset": "code_search_net",
+      "config": "python",
+      "split": "train",
+      "label": "Code",
+      "filename_columns": ["func_path_in_repository", "func_name", "repository_name"],
+      "content_columns": ["whole_func_string", "func_code_string", "code", "original_string"],
+      "sample_limit": 1000,
+      "min_content_length": 40
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "ag_news",
+      "split": "train",
+      "label": "Docs",
+      "filename_columns": [],
+      "content_columns": ["text", "description", "content"],
+      "filename_from_content_prefix": true,
+      "sample_limit": 650,
+      "min_content_length": 40
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "IlyaGusev/gazeta",
+      "split": "train",
+      "label": "Docs",
+      "filename_columns": ["title"],
+      "content_columns": ["title", "summary", "text"],
+      "sample_limit": 350,
+      "min_content_length": 40
+    },
+    {
+      "kind": "local_file",
+      "path": "data/raw/russian_docs.jsonl",
+      "format": "jsonl",
+      "label": "Docs",
+      "filename_columns": ["filename"],
+      "content_columns": ["content"],
+      "sample_limit": 150,
+      "min_content_length": 40
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "ashraq/financial-news-articles",
+      "split": "train",
+      "label": "Finance",
+      "filename_columns": ["title", "url"],
+      "content_columns": ["title", "text", "content"],
+      "filename_from_content_prefix": true,
+      "sample_limit": 500,
+      "min_content_length": 40
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "Kasymkhan/RussianFinancialNews",
+      "split": "train",
+      "label": "Finance",
+      "filename_columns": ["title", "source"],
+      "content_columns": ["title", "body", "tags"],
+      "sample_limit": 250,
+      "min_content_length": 40
+    },
+    {
+      "kind": "local_file",
+      "path": "data/raw/russian_finance.jsonl",
+      "format": "jsonl",
+      "label": "Finance",
+      "filename_columns": ["filename"],
+      "content_columns": ["content"],
+      "sample_limit": 120,
+      "min_content_length": 40
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "mlsa-iai-msu-lab/ru_sci_bench_mteb",
+      "config": "cited_count_ru",
+      "split": "train",
+      "label": "Study",
+      "filename_columns": ["paper_id"],
+      "content_columns": ["text", "value", "label"],
+      "filename_from_content_prefix": true,
+      "sample_limit": 550,
+      "min_content_length": 60
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "nyuuzyou/classnotes",
+      "split": "train",
+      "label": "Study",
+      "filename_columns": ["title", "page_url"],
+      "content_columns": ["title", "description", "author"],
+      "sample_limit": 180,
+      "min_content_length": 60
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "reginafeles/humarticles",
+      "split": "train",
+      "label": "Study",
+      "filename_columns": ["title", "id"],
+      "content_columns": ["title", "abstract", "article"],
+      "sample_limit": 150,
+      "min_content_length": 60
+    },
+    {
+      "kind": "local_file",
+      "path": "data/raw/russian_study.jsonl",
+      "format": "jsonl",
+      "label": "Study",
+      "filename_columns": ["filename"],
+      "content_columns": ["content"],
+      "sample_limit": 120,
+      "min_content_length": 60
+    },
+    {
+      "kind": "huggingface",
+      "dataset": "logfit-project/HDFS_v1",
+      "split": "train",
+      "label": "Logs",
+      "filename_columns": ["component", "block_id"],
+      "content_columns": ["content", "text", "message", "log"],
+      "filename_from_content_prefix": true,
+      "sample_limit": 1000,
+      "min_content_length": 30
+    }
+  ],
+  "label_target_counts": {
+    "Code": 1000,
+    "Docs": 1000,
+    "Finance": 800,
+    "Study": 900,
+    "Logs": 1000,
+    "Media": 600,
+    "Archives": 600,
+    "Other": 600
+  },
+  "synthetic_counts": {
+    "Media": 600,
+    "Archives": 600,
+    "Other": 600
+  }
+}
