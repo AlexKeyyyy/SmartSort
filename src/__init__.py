@@ -1,0 +1,1 @@
+"""SmartSort application package."""

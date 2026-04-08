@@ -1,0 +1,10 @@
+customtkinter
+datasets
+joblib
+openpyxl
+pandas
+PyMuPDF
+python-docx
+scikit-learn
+watchdog
+zstandard

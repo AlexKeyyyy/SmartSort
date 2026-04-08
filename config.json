@@ -1,0 +1,16 @@
+{
+  "watch_dir": "",
+  "output_dir": "",
+  "confidence_threshold": 0.55,
+  "auto_move": false,
+  "categories": {
+    "Code": "💻",
+    "Docs": "📄",
+    "Finance": "💰",
+    "Study": "📚",
+    "Media": "🎬",
+    "Archives": "📦",
+    "Logs": "📋",
+    "Other": "📂"
+  }
+}
