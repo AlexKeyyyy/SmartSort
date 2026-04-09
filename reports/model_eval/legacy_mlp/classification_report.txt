@@ -1,0 +1,14 @@
+              precision    recall  f1-score   support
+
+    Archives       1.00      1.00      1.00       120
+        Code       1.00      1.00      1.00       200
+        Docs       0.90      0.91      0.91       240
+     Finance       0.95      0.96      0.95       172
+        Logs       1.00      1.00      1.00       200
+       Media       1.00      1.00      1.00       120
+       Other       1.00      1.00      1.00       120
+       Study       0.94      0.92      0.93       218
+
+    accuracy                           0.97      1390
+   macro avg       0.97      0.97      0.97      1390
+weighted avg       0.97      0.97      0.97      1390

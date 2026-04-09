@@ -1,0 +1,63 @@
+{
+  "Archives": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 120.0
+  },
+  "Code": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 200.0
+  },
+  "Docs": {
+    "precision": 0.9049586776859504,
+    "recall": 0.9125,
+    "f1-score": 0.9087136929460581,
+    "support": 240.0
+  },
+  "Finance": {
+    "precision": 0.9482758620689655,
+    "recall": 0.9593023255813954,
+    "f1-score": 0.953757225433526,
+    "support": 172.0
+  },
+  "Logs": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 200.0
+  },
+  "Media": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 120.0
+  },
+  "Other": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 120.0
+  },
+  "Study": {
+    "precision": 0.9392523364485982,
+    "recall": 0.9220183486238532,
+    "f1-score": 0.9305555555555556,
+    "support": 218.0
+  },
+  "accuracy": 0.9676258992805755,
+  "macro avg": {
+    "precision": 0.9740608595254392,
+    "recall": 0.974227584275656,
+    "f1-score": 0.9741283092418924,
+    "support": 1390.0
+  },
+  "weighted avg": {
+    "precision": 0.9676622591843773,
+    "recall": 0.9676258992805755,
+    "f1-score": 0.9676249210019651,
+    "support": 1390.0
+  }
+}

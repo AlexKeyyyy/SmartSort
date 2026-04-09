@@ -10,7 +10,7 @@ from src.app import load_config, run_app, save_config
 BASE_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = BASE_DIR / "config.json"
 DATASET_PATH = BASE_DIR / "data" / "dataset.csv"
-MODEL_PATH = BASE_DIR / "models" / "smartsort_model.pkl"
+MODEL_PATH = BASE_DIR / "models" / "smartsort_transformer" / "metadata.json"
 
 
 def run_module(module_name: str) -> None:
@@ -32,7 +32,7 @@ def ensure_assets() -> None:
     if not MODEL_PATH.exists():
         if not DATASET_PATH.exists():
             run_module("src.generate_dataset")
-        run_module("src.train_model")
+        run_module("src.train_transformer_model")
 
 
 def main() -> None:

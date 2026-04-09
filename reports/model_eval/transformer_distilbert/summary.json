@@ -1,0 +1,14 @@
+{
+  "model_name": "distilbert/distilbert-base-multilingual-cased",
+  "accuracy": 0.9820143884892086,
+  "macro_f1": 0.9859349798235989,
+  "weighted_f1": 0.9819517415046431,
+  "loss": 0.0631450977452078,
+  "epochs": 4,
+  "batch_size": 8,
+  "max_length": 192,
+  "learning_rate": 2e-05,
+  "weight_decay": 0.01,
+  "test_size": 0.2,
+  "freeze_base_model": false
+}
