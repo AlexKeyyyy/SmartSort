@@ -1,0 +1,1 @@
+Protocol: weekly sync, roadmap update, task owners and deadlines.
