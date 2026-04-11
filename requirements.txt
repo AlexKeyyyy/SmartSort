@@ -6,5 +6,8 @@ pandas
 PyMuPDF
 python-docx
 scikit-learn
+torch
+tqdm
+transformers
 watchdog
 zstandard

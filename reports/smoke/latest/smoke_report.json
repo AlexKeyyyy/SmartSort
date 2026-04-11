@@ -1,0 +1,28 @@
+{
+  "status": "ok",
+  "checked_at_utc": "2026-04-08T23:49:34Z",
+  "project_root": "/Users/alexykoba/reps/kurs4/Нейронные сети/kurs/pythonProject1",
+  "checks": {
+    "predictor": {
+      "files_tested": 7,
+      "matched_expected": 4,
+      "categories": [
+        "Archives",
+        "Code",
+        "Logs",
+        "Media",
+        "Other"
+      ]
+    },
+    "watcher": {
+      "events_received": 1
+    },
+    "mover_storage": {
+      "moves_logged": 1,
+      "undo_second_attempt": false
+    },
+    "config": {
+      "config_path": "/var/folders/s8/75386jzd25d3249mp0xqk94w0000gn/T/smartsort_smoke_config_5z7po5op/config.json"
+    }
+  }
+}

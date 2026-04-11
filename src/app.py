@@ -18,18 +18,24 @@ else:
     CTK_IMPORT_ERROR = None
 
 from src.mover import FileMover
+from src.model_profiles import (
+    build_model_profiles,
+    first_available_model_key,
+    is_profile_available,
+    resolve_profile_model_path,
+)
 from src.predictor import SmartSortPredictor
 from src.storage import Storage
 from src.watcher import FolderWatcher
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
-MODEL_PATH = BASE_DIR / "models" / "smartsort_transformer"
 DEFAULT_CONFIG = {
     "watch_dir": "",
     "output_dir": "",
     "confidence_threshold": 0.55,
     "auto_move": False,
+    "selected_model_key": "transformer_distilbert",
     "categories": {
         "Code": "💻",
         "Docs": "📄",
@@ -90,7 +96,26 @@ else:
                 self.config_data.update({key: value for key, value in config.items() if key != "categories"})
                 self.config_data["categories"].update(config.get("categories", {}))
 
-            self.predictor = SmartSortPredictor(MODEL_PATH)
+            self.model_profiles = build_model_profiles(self.base_dir)
+            self.model_display_to_key: dict[str, str] = {}
+            self.model_key_to_display: dict[str, str] = {}
+            self.active_model_key: str = ""
+            self.active_model_path: Path | None = None
+            self.active_model_display_name: str = ""
+
+            startup_key = first_available_model_key(
+                self.model_profiles,
+                str(self.config_data.get("selected_model_key", "")),
+            )
+            if startup_key is None:
+                raise FileNotFoundError(
+                    "No available model found. Train at least one model first "
+                    "(legacy: `python -m src.train_model`, transformer: `python -m src.train_transformer_model`)."
+                )
+
+            self.active_model_key = startup_key
+            self.config_data["selected_model_key"] = startup_key
+            self.predictor = self._load_predictor_for_key(startup_key)
             self.storage = Storage(self.base_dir / "smartsort.db")
             self.mover = FileMover(self._get_output_dir(), self.storage)
             self.watcher: FolderWatcher | None = None
@@ -116,9 +141,14 @@ else:
             self.status_var = ctk.StringVar(value="Stopped")
             self.status_color = "#d9534f"
             self.threshold_label_var = ctk.StringVar()
+            self.model_var = ctk.StringVar(value="")
+            self.model_info_var = ctk.StringVar(value="")
 
             self._build_layout()
             self._update_threshold_label()
+            self._refresh_model_selector_options()
+            self._sync_model_selector_with_active()
+            self._update_model_info_label()
             self.refresh_dashboard()
             self.refresh_log()
             self.refresh_watcher_table()
@@ -127,6 +157,110 @@ else:
 
             self.queue_after_id = self.after(250, self._process_event_queue)
             self.protocol("WM_DELETE_WINDOW", self.on_close)
+
+        def _profile_is_available(self, model_key: str) -> bool:
+            profile = self.model_profiles.get(model_key)
+            if not profile:
+                return False
+            return is_profile_available(profile)
+
+        def _resolve_model_path(self, model_key: str) -> Path | None:
+            profile = self.model_profiles.get(model_key)
+            if not profile:
+                return None
+            return resolve_profile_model_path(profile)
+
+        def _model_display_name(self, model_key: str) -> str:
+            profile = self.model_profiles[model_key]
+            status = "ready" if self._profile_is_available(model_key) else "not trained"
+            return f"{profile['title']} [{status}]"
+
+        def _refresh_model_selector_options(self) -> None:
+            self.model_display_to_key.clear()
+            self.model_key_to_display.clear()
+
+            values: list[str] = []
+            for key in self.model_profiles:
+                display = self._model_display_name(key)
+                values.append(display)
+                self.model_display_to_key[display] = key
+                self.model_key_to_display[key] = display
+
+            if hasattr(self, "model_selector"):
+                self.model_selector.configure(values=values)
+
+        def _sync_model_selector_with_active(self) -> None:
+            display = self.model_key_to_display.get(self.active_model_key, "")
+            if display:
+                self.model_var.set(display)
+
+        def _load_predictor_for_key(self, model_key: str) -> SmartSortPredictor:
+            path = self._resolve_model_path(model_key)
+            if path is None:
+                profile = self.model_profiles[model_key]
+                raise FileNotFoundError(
+                    f"Selected model is not available: {profile['title']}. "
+                    f"Expected path: {profile['model_path']}"
+                )
+
+            predictor = SmartSortPredictor(path)
+            current_threshold = float(self.config_data.get("confidence_threshold", 0.55))
+            if hasattr(self, "threshold_var"):
+                try:
+                    current_threshold = float(self.threshold_var.get())
+                except Exception:
+                    pass
+            predictor.threshold = current_threshold
+            self.active_model_path = path
+            self.active_model_display_name = self.model_profiles[model_key]["title"]
+            return predictor
+
+        def _switch_model(self, model_key: str, notify: bool = False, force_reload: bool = False) -> bool:
+            if model_key == self.active_model_key and not force_reload:
+                return True
+
+            if not self._profile_is_available(model_key):
+                missing_profile = self.model_profiles[model_key]
+                messagebox.showwarning(
+                    "SmartSort",
+                    f"Модель пока не готова: {missing_profile['title']}.\n"
+                    f"Ожидается: {missing_profile['model_path']}",
+                )
+                self._sync_model_selector_with_active()
+                return False
+
+            try:
+                self.predictor = self._load_predictor_for_key(model_key)
+            except Exception as exc:
+                messagebox.showerror("SmartSort", f"Не удалось переключить модель: {exc}")
+                self._sync_model_selector_with_active()
+                return False
+
+            self.active_model_key = model_key
+            self.config_data["selected_model_key"] = model_key
+            if self.watcher is not None:
+                self.watcher.predictor = self.predictor
+                self.watcher.event_handler.predictor = self.predictor
+
+            self._sync_model_selector_with_active()
+            self._update_model_info_label()
+            if notify:
+                messagebox.showinfo("SmartSort", f"Активна модель: {self.active_model_display_name}")
+            return True
+
+        def _on_model_selected(self, selected_display: str) -> None:
+            model_key = self.model_display_to_key.get(selected_display)
+            if not model_key:
+                return
+            self._switch_model(model_key, notify=False)
+
+        def _update_model_info_label(self) -> None:
+            profile = self.model_profiles.get(self.active_model_key, {})
+            backend = str(profile.get("backend", "unknown"))
+            model_path = str(self.active_model_path) if self.active_model_path else "n/a"
+            self.model_info_var.set(
+                f"Active: {self.active_model_display_name} | backend: {backend} | path: {model_path}"
+            )
 
         def _get_output_dir(self) -> Path:
             raw_output = self.config_data.get("output_dir", "")
@@ -316,8 +450,34 @@ else:
                 row=0, column=0, sticky="w", padx=20, pady=(20, 18)
             )
 
+            model_frame = ctk.CTkFrame(page, fg_color="#162033")
+            model_frame.grid(row=1, column=0, sticky="ew", padx=20, pady=10)
+            model_frame.grid_columnconfigure(0, weight=1)
+            ctk.CTkLabel(model_frame, text="Model profile").grid(
+                row=0, column=0, sticky="w", padx=16, pady=(14, 8)
+            )
+            self.model_selector = ctk.CTkOptionMenu(
+                model_frame,
+                values=["Loading..."],
+                variable=self.model_var,
+                command=self._on_model_selected,
+            )
+            self.model_selector.grid(row=1, column=0, sticky="ew", padx=16, pady=(0, 8))
+            ctk.CTkLabel(
+                model_frame,
+                text="Switch between legacy baseline and neural profiles.",
+                text_color="#93a4c3",
+                justify="left",
+            ).grid(row=2, column=0, sticky="w", padx=16, pady=(0, 2))
+            ctk.CTkLabel(
+                model_frame,
+                textvariable=self.model_info_var,
+                justify="left",
+                wraplength=760,
+            ).grid(row=3, column=0, sticky="w", padx=16, pady=(0, 14))
+
             threshold_frame = ctk.CTkFrame(page, fg_color="#162033")
-            threshold_frame.grid(row=1, column=0, sticky="ew", padx=20, pady=10)
+            threshold_frame.grid(row=2, column=0, sticky="ew", padx=20, pady=10)
             threshold_frame.grid_columnconfigure(0, weight=1)
             ctk.CTkLabel(threshold_frame, text="Порог confidence").grid(
                 row=0, column=0, sticky="w", padx=16, pady=(14, 8)
@@ -334,8 +494,11 @@ else:
             self.threshold_value_label.grid(row=2, column=0, sticky="w", padx=16, pady=(0, 14))
 
             buttons_frame = ctk.CTkFrame(page, fg_color="transparent")
-            buttons_frame.grid(row=2, column=0, sticky="w", padx=20, pady=10)
-            ctk.CTkButton(buttons_frame, text="Переобучить Transformer", command=self.retrain_model).pack(
+            buttons_frame.grid(row=3, column=0, sticky="w", padx=20, pady=10)
+            ctk.CTkButton(buttons_frame, text="Refresh Model List", command=self.refresh_model_profiles).pack(
+                side="left", padx=(0, 12)
+            )
+            ctk.CTkButton(buttons_frame, text="Retrain Active Model", command=self.retrain_model).pack(
                 side="left", padx=(0, 12)
             )
             ctk.CTkButton(buttons_frame, text="Сохранить настройки", command=self.save_settings).pack(side="left")
@@ -354,6 +517,25 @@ else:
 
         def _update_threshold_label(self) -> None:
             self.threshold_label_var.set(f"Текущее значение: {self.threshold_var.get():.2f}")
+
+        def refresh_model_profiles(self, notify: bool = True) -> None:
+            self.model_profiles = build_model_profiles(self.base_dir)
+            self._refresh_model_selector_options()
+
+            preferred_key = self.active_model_key or str(self.config_data.get("selected_model_key", ""))
+            next_key = first_available_model_key(self.model_profiles, preferred_key)
+            if next_key is None:
+                messagebox.showerror(
+                    "SmartSort",
+                    "No trained models are available. Train a model and try again.",
+                )
+                return
+
+            switched = self._switch_model(next_key, notify=False)
+            if switched:
+                self._update_model_info_label()
+                if notify:
+                    messagebox.showinfo("SmartSort", "Model list refreshed.")
 
         def _update_status_indicator(self) -> None:
             running = self.watcher is not None and self.watcher.is_running()
@@ -413,11 +595,9 @@ else:
 
         def _handle_retrain_complete(self, payload: dict) -> None:
             if payload["success"]:
-                self.predictor = SmartSortPredictor(MODEL_PATH)
-                if self.watcher is not None:
-                    self.watcher.predictor = self.predictor
-                    self.watcher.event_handler.predictor = self.predictor
-                messagebox.showinfo("SmartSort", "Модель переобучена и перезагружена.")
+                self.refresh_model_profiles(notify=False)
+                self._switch_model(self.active_model_key, notify=False, force_reload=True)
+                messagebox.showinfo("SmartSort", "Model retrained and reloaded.")
             else:
                 messagebox.showerror("SmartSort", payload.get("message", "Переобучение завершилось ошибкой."))
 
@@ -613,13 +793,35 @@ else:
             thread = threading.Thread(target=self._retrain_worker, daemon=True)
             thread.start()
 
+        def _build_retrain_command(self) -> list[str]:
+            profile = self.model_profiles[self.active_model_key]
+            backend = profile["backend"]
+            if backend == "legacy":
+                return [sys.executable, "-m", "src.train_model"]
+
+            model_name = str(profile.get("model_name", "")).strip()
+            output_dir = Path(profile["model_path"])
+            report_dir = Path(profile["report_dir"])
+            if not model_name:
+                raise ValueError(f"Missing model_name in profile: {self.active_model_key}")
+
+            return [
+                sys.executable,
+                "-m",
+                "src.train_transformer_model",
+                "--model-name",
+                model_name,
+                "--output-dir",
+                str(output_dir),
+                "--report-dir",
+                str(report_dir),
+                "--no-auto-quick",
+            ]
+
         def _retrain_worker(self) -> None:
             try:
-                subprocess.run(
-                    [sys.executable, "-m", "src.train_transformer_model"],
-                    cwd=self.base_dir,
-                    check=True,
-                )
+                train_command = self._build_retrain_command()
+                subprocess.run(train_command, cwd=self.base_dir, check=True)
                 self.event_queue.put(("retrain_complete", {"success": True}))
             except Exception as exc:
                 self.event_queue.put(("retrain_complete", {"success": False, "message": str(exc)}))
@@ -629,6 +831,8 @@ else:
             self.config_data["output_dir"] = self.output_dir_var.get().strip()
             self.config_data["auto_move"] = bool(self.auto_move_var.get())
             self.config_data["confidence_threshold"] = round(float(self.threshold_var.get()), 2)
+            self.config_data["selected_model_key"] = self.active_model_key
+            self.predictor.threshold = float(self.config_data["confidence_threshold"])
 
             try:
                 save_config(self.config_path, self.config_data)

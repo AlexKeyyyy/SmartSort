@@ -1,0 +1,14 @@
+{
+  "model_name": "DeepPavlov/rubert-base-cased",
+  "accuracy": 0.9748201438848921,
+  "macro_f1": 0.9796191783829947,
+  "weighted_f1": 0.9747735465612616,
+  "loss": 0.08974834480697567,
+  "epochs": 3,
+  "batch_size": 4,
+  "max_length": 256,
+  "learning_rate": 2e-05,
+  "weight_decay": 0.01,
+  "test_size": 0.2,
+  "freeze_base_model": false
+}

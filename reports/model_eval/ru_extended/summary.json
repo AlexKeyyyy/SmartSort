@@ -1,0 +1,18 @@
+{
+  "dataset_path": "C:\\reps\\kurs4\\Нейронные сети\\kurs\\pythonProject1\\data\\dataset.csv",
+  "model_path": "C:\\reps\\kurs4\\Нейронные сети\\kurs\\pythonProject1\\models\\smartsort_model.pkl",
+  "validation_rows": 1390,
+  "train_rows": 5556,
+  "accuracy": 0.967626,
+  "labels": [
+    "Archives",
+    "Code",
+    "Docs",
+    "Finance",
+    "Logs",
+    "Media",
+    "Other",
+    "Study"
+  ],
+  "total_errors": 45
+}

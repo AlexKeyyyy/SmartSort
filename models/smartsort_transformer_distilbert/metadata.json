@@ -1,0 +1,25 @@
+{
+  "model_name": "distilbert/distilbert-base-multilingual-cased",
+  "label2id": {
+    "Archives": 0,
+    "Code": 1,
+    "Docs": 2,
+    "Finance": 3,
+    "Logs": 4,
+    "Media": 5,
+    "Other": 6,
+    "Study": 7
+  },
+  "id2label": {
+    "0": "Archives",
+    "1": "Code",
+    "2": "Docs",
+    "3": "Finance",
+    "4": "Logs",
+    "5": "Media",
+    "6": "Other",
+    "7": "Study"
+  },
+  "max_length": 192,
+  "text_format": "[FILE] <normalized filename> [CONTENT] <content>"
+}

@@ -3,6 +3,7 @@
   "output_dir": "",
   "confidence_threshold": 0.55,
   "auto_move": false,
+  "selected_model_key": "transformer_distilbert",
   "categories": {
     "Code": "💻",
     "Docs": "📄",
